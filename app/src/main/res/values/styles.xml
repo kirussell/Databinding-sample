@@ -8,4 +8,42 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="Widget.Avatar" parent="">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_margin">@dimen/activity_horizontal_margin</item>
+        <item name="android:background">@color/colorPlaceholder</item>
+    </style>
+
+    <style name="Text.Name" parent="">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">@dimen/activity_horizontal_margin</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="FriendItem.Avatar" parent="">
+        <item name="android:layout_width">50dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@drawable/round_placeholder</item>
+    </style>
+
+    <style name="FriendItem.Name" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">8dp</item>
+    </style>
+
+    <style name="Text.About" parent="">
+        <item name="android:gravity">center</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Edit.About" parent="">
+        <item name="android:textSize">12sp</item>
+        <item name="android:hint">@string/about</item>
+    </style>
+
 </resources>
