@@ -1,74 +1,38 @@
 package ru.kirussell.databinding.sample;
 
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
+import android.databinding.DataBindingUtil;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+import ru.kirussell.databinding.sample.databinding.ActivityDisplayDataBinding;
+import ru.kirussell.databinding.sample.databinding.ItemFriendBinding;
 
 import static ru.kirussell.databinding.sample.SpannableUtils.*;
 
 public class DisplayDataActivity extends AppCompatActivity {
 
-    private ImageView roundAvatar;
-    private ImageView grayScaleAvatar;
-    private ImageView blurAvatar;
-    private TextView name;
-    private FriendsAdapter friendsAdapter;
+    ActivityDisplayDataBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display_data);
         Picasso.with(this).setLoggingEnabled(true);
-        initViews();
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_display_data);
         loadUser();
-    }
-
-    private void initViews() {
-        roundAvatar = (ImageView) findViewById(R.id.roundAvatar);
-        grayScaleAvatar = (ImageView) findViewById(R.id.grayScaleAvatar);
-        blurAvatar = (ImageView) findViewById(R.id.blurAvatar);
-        name = (TextView) findViewById(R.id.userName);
-        final TextView about = (TextView) findViewById(R.id.about);
-        final EditText editAbout = (EditText) findViewById(R.id.edAbout);
-        editAbout.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                about.setText(s.toString());
-            }
-        });
-        final Button saveAbout = (Button) findViewById(R.id.saveAbout);
-        final View aboutBlock = findViewById(R.id.aboutBlock);
-        saveAbout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                aboutBlock.setVisibility(View.GONE);
-            }
-        });
-        ListView friendsList = (ListView) findViewById(R.id.friendsList);
-        friendsAdapter = new FriendsAdapter();
-        friendsList.setAdapter(friendsAdapter);
     }
 
     private void loadUser() {
@@ -76,41 +40,12 @@ public class DisplayDataActivity extends AppCompatActivity {
 
             @Override
             public void onData(final User user) {
-                DisplayDataActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (user != null) {
-                            // round
-                            Picasso.with(DisplayDataActivity.this)
-                                    .load(user.avatarUrl)
-                                    .fit()
-                                    .transform(new CircleTransform())
-                                    .into(roundAvatar);
-                            // grayscale
-                            ColorMatrix matrix = new ColorMatrix();
-                            matrix.setSaturation(0);
-                            grayScaleAvatar.setColorFilter(new ColorMatrixColorFilter(matrix));
-                            Picasso.with(DisplayDataActivity.this)
-                                    .load(user.avatarUrl)
-                                    .into(grayScaleAvatar);
-                            // blur
-                            Picasso.with(DisplayDataActivity.this)
-                                    .load(user.avatarUrl)
-                                    .transform(new BlurTransform(DisplayDataActivity.this))
-                                    .into(blurAvatar);
-                            // name and age
-                            name.setText(prepareNameAndAge(user));
-                            if (friendsAdapter != null) {
-                                friendsAdapter.setData(user.friends);
-                            }
-                        }
-                    }
-                });
+                binding.setUser(new UserViewModel(user));
             }
         });
     }
 
-    private CharSequence prepareNameAndAge(Profile profile) {
+    private static CharSequence prepareNameAndAge(Profile profile) {
         if (profile instanceof User) {
             return normal(profile.name + ", ", typeface(SANS_SERIF_LIGHT, String.valueOf(profile.age)));
         } else {
@@ -118,32 +53,82 @@ public class DisplayDataActivity extends AppCompatActivity {
         }
     }
 
-    private class FriendsAdapter extends BaseDataAdapter<Friend> {
+    public
+    static class FriendsAdapter extends BaseDataAdapter<Friend> {
+
+        FriendsAdapter(List<Friend> data) {
+            super();
+            this.data.addAll(data);
+        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder h;
+            ItemFriendBinding binding;
             if (convertView == null) {
-                convertView = View.inflate(parent.getContext(), R.layout.item_friend, null);
-                h = new ViewHolder();
-                h.avatar = (ImageView) convertView.findViewById(R.id.avatar);
-                h.name = (TextView) convertView.findViewById(R.id.name);
-                convertView.setTag(h);
+                binding = ItemFriendBinding.inflate(LayoutInflater.from(parent.getContext()));
+                convertView = binding.getRoot();
+                convertView.setTag(binding);
             } else {
-                h = (ViewHolder) convertView.getTag();
+                binding = (ItemFriendBinding) convertView.getTag();
             }
-            Friend friend = getItem(position);
-            Picasso.with(convertView.getContext())
-                    .load(friend.avatarUrl)
-                    .transform(new CircleTransform())
-                    .into(h.avatar);
-            h.name.setText(prepareNameAndAge(friend));
+            binding.setFriend(getItem(position));
+            binding.executePendingBindings();
             return convertView;
         }
+    }
 
-        class ViewHolder {
-            public ImageView avatar;
-            public TextView name;
+    public static class UserViewModel extends BaseObservable {
+
+        User user;
+        public ObservableField<String> about;
+        public ObservableBoolean hasAbout;
+        public FriendsAdapter friends;
+
+        UserViewModel(User user) {
+            setUser(user);
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+            about = new ObservableField<>(user.about);
+            hasAbout = new ObservableBoolean(!TextUtils.isEmpty(user.about));
+            friends = new FriendsAdapter(user.friends);
+        }
+
+        @Bindable
+        public CharSequence getName() {
+            return prepareNameAndAge(user);
+        }
+
+        @Bindable
+        public String getAvatarUrl() {
+            return user.avatarUrl;
+        }
+
+        public TextWatcher getAboutTextListener() {
+            return new TextWatcher() {
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String str = s.toString();
+                    if (!str.equals(about.get())) {
+                        about.set(str);
+                    }
+                }
+            };
+        }
+
+        public void onSaveAbout(View view) {
+            hasAbout.set(true);
         }
     }
 }

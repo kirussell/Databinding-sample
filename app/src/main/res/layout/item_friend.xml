@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="@dimen/activity_horizontal_margin"
-    android:orientation="horizontal">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
-        android:id="@+id/avatar"
-        style="@style/FriendItem.Avatar" />
+    <data>
 
-    <TextView
-        android:id="@+id/name"
-        tools:text="Fred Flinstone, 42"
-        style="@style/FriendItem.Name" />
-</LinearLayout>
+        <variable
+            name="friend"
+            type="ru.kirussell.databinding.sample.Friend" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <ImageView
+            style="@style/FriendItem.Avatar"
+            bind:roundImageUrl="@{friend.avatarUrl}" />
+
+        <TextView
+            style="@style/FriendItem.Name"
+            android:text="@{String.valueOf(friend.name + ',' + friend.age)}"
+            tools:text="Fred Flinstone, 42" />
+    </LinearLayout>
+</layout>

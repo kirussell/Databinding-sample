@@ -5,8 +5,8 @@ package ru.kirussell.databinding.sample;
  * Model for common profile
  */
 public class Profile {
-    String name;
-    int age;
-    String avatarUrl;
-    String about;
+    public String name;
+    public int age;
+    public String avatarUrl;
+    public String about;
 }

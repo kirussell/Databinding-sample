@@ -57,7 +57,7 @@ public class FakeApiService {
             res.add(
                     createFriend(
                             name,
-                            20 + rand.nextInt(10),
+                            50 + rand.nextInt(10),
                             generateAvatarUrl(),
                             "I am awesome! Deal with it!"
                     )

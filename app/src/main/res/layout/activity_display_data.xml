@@ -1,71 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".DisplayDataActivity">
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <import type="ru.kirussell.databinding.sample.ColorFilters" />
+        <variable name="user" type="ru.kirussell.databinding.sample.DisplayDataActivity.UserViewModel"/>
+    </data>
 
     <LinearLayout
+        android:id="@+id/ololo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".DisplayDataActivity">
 
-        <ImageView
-            android:id="@+id/roundAvatar"
-            style="@style/Widget.Avatar"
-            android:background="@drawable/round_placeholder" />
-
-        <ImageView
-            android:id="@+id/grayScaleAvatar"
-            style="@style/Widget.Avatar" />
-
-        <ImageView
-            android:id="@+id/blurAvatar"
-            style="@style/Widget.Avatar" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/userName"
-        style="@style/Text.Name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        tools:text="My awesome name, 26" />
-
-    <TextView
-        android:id="@+id/about"
-        style="@style/Text.About"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:id="@+id/aboutBlock"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <EditText
-            android:id="@+id/edAbout"
-            style="@style/Edit.About"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="3" />
+            android:gravity="center_horizontal">
 
-        <Button
-            android:id="@+id/saveAbout"
-            android:layout_width="0dp"
+            <ImageView
+                style="@style/Widget.Avatar"
+                android:background="@drawable/round_placeholder"
+                bind:roundImageUrl="@{user.avatarUrl}"/>
+
+            <ImageView
+                style="@style/Widget.Avatar"
+                android:colorFilter="@{ColorFilters.GRAYSCALE}"
+                bind:imageUrl="@{user.avatarUrl}"/>
+
+            <ImageView
+                style="@style/Widget.Avatar"
+                bind:blurImageUrl="@{user.avatarUrl}"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/Text.Name"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            tools:text="My awesome name, 26"
+            android:text="@{user.name}"/>
+
+        <TextView
+            style="@style/Text.About"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{user.about}"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{user.hasAbout ? View.GONE : View.VISIBLE}">
+
+            <EditText
+                style="@style/Edit.About"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:addTextChangedListener="@{user.getAboutTextListener()}"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:onClick="@{user.onSaveAbout}"/>
+        </LinearLayout>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="@string/save" />
+            bind:listAdapter="@{user.friends}"/>
     </LinearLayout>
-
-    <ListView
-        android:id="@+id/friendsList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+</layout>
